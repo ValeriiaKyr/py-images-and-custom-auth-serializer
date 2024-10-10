@@ -30,8 +30,14 @@ class CinemaHallSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "rows", "seats_in_row", "capacity")
 
 
+class MovieImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Movie
+        fields = ("id", "image")
+
+
 class MovieSerializer(serializers.ModelSerializer):
-    image = serializers.CharField(source="movie.image", read_only=True)
+    # image = serializers.CharField(source="movie.image", read_only=True)
 
     class Meta:
         model = Movie
@@ -42,7 +48,6 @@ class MovieSerializer(serializers.ModelSerializer):
             "duration",
             "genres",
             "actors",
-            "image"
         )
 
 
@@ -53,6 +58,7 @@ class MovieListSerializer(serializers.ModelSerializer):
     actors = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field="full_name"
     )
+    image = serializers.ImageField(read_only=True)
 
     class Meta:
         model = Movie
@@ -70,6 +76,7 @@ class MovieListSerializer(serializers.ModelSerializer):
 class MovieDetailSerializer(serializers.ModelSerializer):
     genres = GenreSerializer(many=True, read_only=True)
     actors = ActorSerializer(many=True, read_only=True)
+    image = serializers.ImageField(read_only=True)
 
     class Meta:
         model = Movie
@@ -84,18 +91,10 @@ class MovieDetailSerializer(serializers.ModelSerializer):
         )
 
 
-class MovieImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Movie
-        fields = ("id", "image")
-
-
 class MovieSessionSerializer(serializers.ModelSerializer):
-    movie_image = serializers.CharField(source="movie.image", read_only=True)
-
     class Meta:
         model = MovieSession
-        fields = ("id", "show_time", "movie", "cinema_hall", "movie_image")
+        fields = ("id", "show_time", "movie", "cinema_hall")
 
 
 class MovieSessionListSerializer(MovieSessionSerializer):
@@ -107,7 +106,7 @@ class MovieSessionListSerializer(MovieSessionSerializer):
         source="cinema_hall.capacity", read_only=True
     )
     tickets_available = serializers.IntegerField(read_only=True)
-    movie_image = serializers.CharField(source="movie.image", read_only=True)
+    movie_image = serializers.ImageField(read_only=True, source="movie.image")
 
     class Meta:
         model = MovieSession
@@ -154,7 +153,7 @@ class MovieSessionDetailSerializer(MovieSessionSerializer):
 
     class Meta:
         model = MovieSession
-        fields = ("id", "show_time", "movie", "cinema_hall", "taken_places")
+        fields = ("id", "show_time", "movie", "cinema_hall", "taken_places",)
 
 
 class OrderSerializer(serializers.ModelSerializer):
